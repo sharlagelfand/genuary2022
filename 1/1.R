@@ -113,7 +113,7 @@ p <- ggplot() +
 
 p
 
-ggsave(here::here("1", "day_1_clean.png"), p, width = 12.6, height = 8, dpi = 300)
+ggsave(here::here("1", "day_1_clean.png"), p, width = 12.7, height = 8, dpi = 300, background = light)
 
 clean_image <- image_read(here::here("1", "day_1_clean.png"))
 
