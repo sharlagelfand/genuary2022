@@ -4,7 +4,6 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 library(ggplot2)
-library(magick)
 
 source(here::here("gradients.R"))
 source(here::here("perlin_circle.R"))
@@ -92,7 +91,3 @@ p <- ggplot() +
   coord_fixed(ylim = c(3, 10), expand = FALSE)
 
 ggsave(here::here("3", "day_3_clean.png"), p, width = 10, height = 7, dpi = 300)
-
-image_read(here::here("3", "day_3_clean.png")) %>%
-  image_noise() %>%
-  image_write(here::here("3", "day_3_noisy.png"))
