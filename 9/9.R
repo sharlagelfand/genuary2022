@@ -145,8 +145,13 @@ generate_points_for_rectangle <- function(xmin, xmax, ymin, ymax) {
   )
 }
 
+rectangles_placement <- rectangles_placement %>%
+  mutate(
+    size = width * height,
+    id = row_number()
+  )
+
 rectangles <- rectangles_placement %>%
-  mutate(id = row_number()) %>%
   mutate(points = pmap(
     list(xmin, xmax, ymin, ymax),
     generate_points_for_rectangle
@@ -157,7 +162,6 @@ rectangles <- rectangles_placement %>%
 # Checks ----
 
 checks_placement <- rectangles_placement %>%
-  mutate(size = width * height) %>%
   filter(size > 300) %>%
   sample_n(sample(6:10, 1))
 
@@ -250,6 +254,60 @@ checks <- checks %>%
 
 # Grids ----
 
+grid_placement <- rectangles_placement %>%
+  anti_join(checks_placement, by = "id") %>%
+  filter(size > 500) %>%
+  sample_n(sample(6:10, 1))
+
+generate_grid_in_rectangle <- function(xmin, xmax, ymin, ymax, width, height) {
+  grid_size <- 999999
+
+  while (grid_size / 2 > width | grid_size / 2 > height) {
+    grid_size <- sample(2:20, 1)
+  }
+
+  horizontal_lines <- expand.grid(x = xmin, y = seq(ymin, ymax, by = grid_size)) %>%
+    mutate(
+      xend = xmax,
+      yend = y
+    ) %>%
+    # filter(!y %in% c(ymin, ymax))
+    filter(!(y - ymin < 1) & !(ymax - y) < 1)
+
+  vertical_lines <- expand.grid(y = ymin, x = seq(xmin, xmax, by = grid_size)) %>%
+    mutate(
+      yend = ymax,
+      xend = x
+    ) %>%
+    # filter(!x %in% c(xmin, xmax))
+    filter(!(x - xmin < 1) & !(xmax - x) < 1)
+
+  if (grid_size > 10) {
+    size <- runif(1, 1, 2)
+  } else {
+    size <- runif(1, 0.1, 0.5)
+  }
+
+  colour <- sample(c(dark, red), 1)
+
+  bind_rows(
+    horizontal_lines,
+    vertical_lines
+  ) %>%
+    mutate(
+      size = size,
+      colour = colour
+    )
+}
+
+grids <- grid_placement %>%
+  arrange(xmin) %>%
+  mutate(grid = pmap(list(xmin, xmax, ymin, ymax, width, height), generate_grid_in_rectangle)) %>%
+  select(id, grid) %>%
+  unnest(grid)
+
+# Plot ----
+
 p <- ggplot() +
   geom_point(
     data = noise, aes(x = x, y = y, size = size, alpha = alpha),
@@ -257,6 +315,7 @@ p <- ggplot() +
   ) +
   geom_polygon(data = rectangles, aes(x = x, y = y, group = id), fill = "white") +
   geom_point(data = checks, aes(x = x, y = y, colour = colour), size = 0.2, shape = 15) +
+  geom_segment(data = grids, aes(x = x, y = y, xend = xend, yend = yend, group = id, size = size, colour = colour)) +
   geom_path(data = rectangles, aes(x = x, y = y, group = id), color = dark) +
   scale_size_identity() +
   scale_alpha_identity() +
@@ -267,11 +326,10 @@ p <- ggplot() +
   theme(plot.background = element_rect(fill = "white", color = "white"))
 
 ggsave(here::here("9", "day_9_clean.png"), p, width = 10, height = 6, dpi = 300)
-
-clean_image <- image_read(here::here("9", "day_9_clean.png"))
-
-image_noise <- clean_image %>%
-  image_oilpaint() %>%
-  image_noise()
-
-image_write(image_noise, here::here("9", "day_9_noisy.png"))
+#
+# clean_image <- image_read(here::here("9", "day_9_clean.png"))
+#
+# image_noise <- clean_image %>%
+#   image_oilpaint()
+#
+# image_write(image_noise, here::here("9", "day_9_noisy.png"))
