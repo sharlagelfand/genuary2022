@@ -43,7 +43,7 @@ walk2(
     size_n <- 0
     errors <- 0
 
-    while(size_n < n | errors < 100) {
+    while(size_n < n & errors < 100) {
       current_x0 <- runif(1, x_min + size, x_max - size)
       current_y0 <- runif(1, y_min + size, y_max - size)
 
