@@ -10,22 +10,25 @@ source(here::here("gradients.R"))
 
 set.seed(20220113)
 
+# colour_palette <- genuary_colours()[c("red", "orange", "lightpink", "darkblue", "lightblue", "lightgreen")]
+colour_palette <- genuary_colours()
+
 make_flowy_strips <- function(n, width, height, horizontal = width > height) {
   colours <- c()
   points <- vector("list", length = n)
 
-  colours[1] <- sample(genuary_colours(), 1)
+  colours[1] <- sample(colour_palette, 1)
 
   for (i in 1:n) {
-    colour <- sample(genuary_colours(), 1)
+    colour <- sample(colour_palette, 1)
 
     if (i > 1) {
       previous_colour <- colours[i]
       while (colour == previous_colour | colour == colours[i - 1]) {
-        colour <- sample(genuary_colours(), 1)
+        colour <- sample(colour_palette, 1)
       }
     } else {
-      previous_colour <- sample(genuary_colours(), 1)
+      previous_colour <- sample(colour_palette, 1)
     }
 
     colours[i + 1] <- colour
@@ -50,7 +53,7 @@ make_flowy_strips <- function(n, width, height, horizontal = width > height) {
       xmax <- width
     }
 
-    points[[i]] <- generate_points_from_grid(xmin, xmax, ymin, ymax, colour_1 = colour_1, colour_2 = colour_2, granularity = 2, horizontal = horizontal)
+    points[[i]] <- generate_points_from_grid(xmin, xmax, ymin, ymax, colour_1 = colour_1, colour_2 = colour_2, granularity = 1, horizontal = horizontal)
   }
 
   points %>%
@@ -105,4 +108,4 @@ p <- set_1 %>%
   theme_void() +
   theme(plot.background = element_rect(fill = light, colour = light))
 
-ggsave(here::here("13", "day_13.png"), p, height = 16, width = 30, dpi = 200)
+ggsave(here::here("13", "day_13.png"), p, height = 6, width = 11, dpi = 300)
