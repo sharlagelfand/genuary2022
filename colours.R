@@ -8,7 +8,6 @@ genuary_colours <- function() {
     darkblue = "#4A3DFB",
     lightblue = "#8DD8F8",
     purple = "#B38AD9",
-    darkgreen = "#459C00",
     lightgreen = "#C1F213"
   )
 }
