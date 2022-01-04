@@ -13,3 +13,9 @@ Gunta Stölzl's [Design for a runner](https://2016kingscliffgreendesign.wordpres
 ## Day 3: Space
 
 ![A generative image of space. The background is a noisy black to dark grey gradient with tiny randomly placed stars. There are three blobby planets - a dark blue one, a red one, and an orange one in the distance.](03/day_3_noisy.png)
+
+## Day 4: The next next Fidenza
+
+![A horizontal image of blobby shapes, alternating in colors of lime green and baby blue to dark blue. There is some flow to the blobs, since their placement is derived from perlin noise.](04/bluegreens_noisy.png)
+
+![A horizontal image of blobby shapes, alternating in colors of red and pinks. There is some flow to the blobs, since their placement is derived from perlin noise.](04/pinks_noisy.png)
