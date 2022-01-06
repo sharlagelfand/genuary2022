@@ -22,4 +22,6 @@ Gunta Stölzl's [Design for a runner](https://2016kingscliffgreendesign.wordpres
 
 ## Day 6: Trade styles with a friend
 
+Referencing (blatantly) Ijeamaka Anyene's [work](https://twitter.com/ijeamaka_a/status/1454885928967696387)
+
 ![A set of 4 panels in a combination of vertical and horizontal layout. Each panel is a solid blue square with a thick lime green border and a thinner blue border around that. Within each panel is a bunch of small lime green circles, varying in size and placed randomly. The circles are contained within each panel but there is some overlap with the panels' borders and small number peeking out. On those peeking out, you can see that the circles have a blue border.](06/day_6_noisy.png)
