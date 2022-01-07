@@ -25,3 +25,9 @@ Gunta Stölzl's [Design for a runner](https://2016kingscliffgreendesign.wordpres
 Referencing (blatantly) Ijeamaka Anyene's [work](https://twitter.com/ijeamaka_a/status/1454885928967696387)
 
 ![A set of 4 panels in a combination of vertical and horizontal layout. Each panel is a solid blue square with a thick lime green border and a thinner blue border around that. Within each panel is a bunch of small lime green circles, varying in size and placed randomly. The circles are contained within each panel but there is some overlap with the panels' borders and small number peeking out. On those peeking out, you can see that the circles have a blue border.](06/day_6_noisy.png)
+
+## Day 7: Sol LeWitt Wall Drawings
+
+Inspired by [Wall Drawing 413](https://massmoca.org/event/walldrawing413/)
+
+![24 sets of squares laid out in 8 columns and 3 rows. Each set contains 4 squares (2 columns and 2 rows), and each square contains 4 squares within it - one red, one lime green, one pink, and one dark blue. The first squares within each sets are all of the possible permutations of the colour placements. The remaining 3 squares in each set are rotations of the first square (i.e. the square mirrored on the x axis, on the y axis, and on both the x and y axes).](07/day_7_noisy.png)
