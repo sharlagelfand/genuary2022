@@ -14,8 +14,8 @@ r <- 4
 
 pink_circle_tile_1 <- tribble(
   ~x0, ~y0, ~start, ~end, ~color, ~background,
-  0, 0, 0, pi / 2, darkpink, lightgreen,
-  2 * r, 2 * r, pi, 3 * pi / 2, lightpink, lightgreen
+  0, 0, 0, pi / 2, darkpink, lightblue,
+  2 * r, 2 * r, pi, 3 * pi / 2, lightpink, lightblue
 )
 
 pink_circle_tile_1_flipped <- pink_circle_tile_1 %>%
@@ -23,8 +23,8 @@ pink_circle_tile_1_flipped <- pink_circle_tile_1 %>%
 
 pink_circle_tile_2 <- tribble(
   ~x0, ~y0, ~start, ~end, ~color, ~background,
-  0, 2 * r, pi / 2, pi, lightpink, lightgreen,
-  2 * r, 0, 3 * pi / 2, 2 * pi, darkpink, lightgreen
+  0, 2 * r, pi / 2, pi, lightpink, lightblue,
+  2 * r, 0, 3 * pi / 2, 2 * pi, darkpink, lightblue
 )
 
 pink_circle_tile_2_flipped <- pink_circle_tile_2 %>%
@@ -33,23 +33,23 @@ pink_circle_tile_2_flipped <- pink_circle_tile_2 %>%
 green_circle_tile_1 <- pink_circle_tile_1 %>%
   mutate(
     background = lightpink,
-    color = ifelse(x0 == 0, lightgreen, lightblue)
+    color = ifelse(x0 == 0, lightblue, darkblue)
   )
 
 green_circle_tile_1_flipped <- green_circle_tile_1 %>%
   mutate(
-    color = ifelse(x0 != 0, lightgreen, lightblue)
+    color = ifelse(x0 != 0, lightblue, darkblue)
   )
 
 green_circle_tile_2 <- pink_circle_tile_2 %>%
   mutate(
     background = lightpink,
-    color = ifelse(x0 == 0, lightblue, lightgreen),
+    color = ifelse(x0 == 0, darkblue, lightblue),
   )
 
 green_circle_tile_2_flipped <- green_circle_tile_2 %>%
   mutate(
-    color = ifelse(x0 == 0, lightgreen, lightblue)
+    color = ifelse(x0 == 0, lightblue, darkblue)
   )
 
 mega_tile_1 <- bind_rows(
@@ -115,15 +115,15 @@ mega_tile <- bind_rows(
 
 mega_tile_background <- tribble(
   ~xmin, ~xmax, ~ymin, ~ymax, ~color,
-  0, 4 * r, 0, 2 * r, lightgreen,
+  0, 4 * r, 0, 2 * r, lightblue,
   4 * r, 12 * r, 0, 2 * r, lightpink,
-  12 * r, 16 * r, 0, 2 * r, lightgreen,
+  12 * r, 16 * r, 0, 2 * r, lightblue,
   0, 4 * r, 2 * r, 6 * r, lightpink,
-  4 * r, 12 * r, 2 * r, 6 * r, lightgreen,
+  4 * r, 12 * r, 2 * r, 6 * r, lightblue,
   12 * r, 16 * r, 2 * r, 6 * r, lightpink,
-  0, 4 * r, 6 * r, 8 * r, lightgreen,
+  0, 4 * r, 6 * r, 8 * r, lightblue,
   4 * r, 12 * r, 6 * r, 8 * r, lightpink,
-  12 * r, 16 * r, 6 * r, 8 * r, lightgreen
+  12 * r, 16 * r, 6 * r, 8 * r, lightblue
 )
 
 mega <- crossing(x = 1:3, y = 1:4)
