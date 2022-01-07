@@ -24,7 +24,7 @@ squares <- tribble(
 
 circles <- tribble(
   ~x0, ~y0, ~r, ~color,
-  2, 2, 1, red
+  2, 2, 0.75, red
 )
 
 triangles <- tribble(
@@ -70,7 +70,7 @@ triangles_color <- tribble(
 triangles <- triangles %>%
   left_join(triangles_color, by = "group")
 
-grid <- crossing(x = 1:5, y = 1:4)
+grid <- crossing(x = 1:6, y = 1:8)
 
 full_pattern <- map2(
   grid[["x"]], grid[["y"]],
@@ -105,6 +105,14 @@ full_pattern <- full_pattern %>%
   transpose() %>%
   map(bind_rows)
 
+limits <- full_pattern[["backgrounds"]] %>%
+  summarize(
+    xmin = min(xmin),
+    xmax = max(xmax),
+    ymin = min(ymin),
+    ymax = max(ymax)
+  )
+
 p <- ggplot() +
   geom_rect(data = full_pattern[["backgrounds"]], aes(
     xmin = xmin, xmax = xmax,
@@ -118,12 +126,18 @@ p <- ggplot() +
     fill = color
   )) +
   geom_polygon(data = full_pattern[["triangles"]], aes(x = x, y = y, group = group, fill = color)) +
-  # geom_hline(yintercept = seq(4, 12, 2), color = dark, alpha = 0.8, size = 1) +
-  # geom_vline(xintercept = seq(4, 16, 2), color = dark, alpha = 0.8, size = 1) +
-  # geom_rect(aes(xmin = 4, xmax = 16, ymin = 4, ymax = 12), fill = light, alpha = 0.2) +
   scale_fill_identity() +
-  coord_fixed(expand = FALSE, xlim = c(6, 22), ylim = c(6, 18)) +
+  coord_fixed(
+    expand = FALSE,
+    xlim = c(
+      limits[["xmin"]] + 2,
+      limits[["xmax"]] - 2
+    ),
+    ylim = c(
+      limits[["ymin"]] + 2,
+      limits[["ymax"]] - 2
+    )
+  ) +
   theme_void()
 
-ggsave(here::here("26", "26c.png"), width = 12, height = 9, dpi = 300)
-
+ggsave(here::here("26", "26b.png"), width = 12, height = 9, dpi = 300)
