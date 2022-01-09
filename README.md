@@ -31,3 +31,9 @@ Referencing (blatantly) Ijeamaka Anyene's [work](https://twitter.com/ijeamaka_a/
 Inspired by [Wall Drawing 413](https://massmoca.org/event/walldrawing413/)
 
 ![24 sets of squares laid out in 8 columns and 3 rows. Each set contains 4 squares (2 columns and 2 rows), and each square contains 4 squares within it - one red, one lime green, one pink, and one dark blue. The first squares within each sets are all of the possible permutations of the colour placements. The remaining 3 squares in each set are rotations of the first square (i.e. the square mirrored on the x axis, on the y axis, and on both the x and y axes).](07/day_7_noisy_small.png)
+
+## Day 9: Architecture
+
+Inspired by the cover of ["Making Room: Women and Architecture"](https://metropolismag.com/viewpoints/women-feminism-american-architecture/), an edition of the feminist journal Heresies published in 1981
+
+![A black, red, and white image with a noisy black background and thick white border. There are randomly placed rectangles of various sizes, whose borders are jagged and random. Some of the rectangles are white on the inside, some contain a grid (in black or red), and some contain a checkerboard pattern (also in black or red). The grids and checkerboards are of various sizes.](09/day_9_clean_420.png)
