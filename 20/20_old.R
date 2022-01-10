@@ -3,6 +3,7 @@ library(dplyr)
 library(scrawl)
 library(tidyr)
 library(purrr)
+library(ggstar)
 
 source(here::here("colours.R"))
 source(here::here("perlin_circle.R"))
@@ -182,6 +183,29 @@ swirl_with_border <- function(seed) {
   perlin_border <- perlin_border %>%
     filter(!border_section %in% remove_border)
 
+  # Remove some of the blobs in the border and replace with points from ggstar -----
+
+  border_points_remove <- perlin_border %>%
+    distinct(x0, y0) %>%
+    sample_frac(size = runif(1, 0.1, 0.3))
+
+  perlin_border <- perlin_border %>%
+    anti_join(border_points_remove, by = c("x0", "y0"))
+
+  border_points_stars <- border_points_remove %>%
+    rowwise() %>%
+    mutate(
+      shape = sample(c(
+        27, 28, 30, 21, 23, 24, 25, 17, 18,
+        19, 20, 11, 12, 13, 14, 15, 6, 7,
+        8, 9, 10, 1, 3, 4, 5
+      ), 1),
+      size = sample(seq(0.25, 3, 0.25), 1),
+      colour = sample(colors, 1),
+      angle = sample(0:360, 1)
+    ) %>%
+    ungroup()
+
   # Plot ----
 
   p <- ggplot() +
@@ -212,9 +236,19 @@ swirl_with_border <- function(seed) {
         group = id, fill = colour
       )
     ) +
+    geom_star(
+      data = border_points_stars,
+      aes(
+        x = x0, y = y0, size = size,
+        starshape = shape, fill = colour,
+        color = colour, angle = angle
+      )
+    ) +
     coord_fixed() +
     scale_fill_identity() +
     scale_colour_identity() +
+    scale_size_identity() +
+    scale_starshape_identity() +
     theme_void() +
     theme(plot.background = element_rect(fill = "white", colour = "white"))
 
@@ -222,3 +256,8 @@ swirl_with_border <- function(seed) {
 }
 
 walk(1:10, ~ print(swirl_with_border(.x)))
+
+library(magick)
+
+image_read(here::here("17", "2.png")) %>%
+  image_noise()
