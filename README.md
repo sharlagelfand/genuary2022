@@ -37,3 +37,7 @@ Inspired by [Wall Drawing 413](https://massmoca.org/event/walldrawing413/)
 Inspired by the cover of ["Making Room: Women and Architecture"](https://metropolismag.com/viewpoints/women-feminism-american-architecture/), an edition of the feminist journal Heresies published in 1981
 
 ![A black, red, and white image with a noisy black background and thick white border. There are randomly placed rectangles of various sizes, whose borders are jagged and random. Some of the rectangles are white on the inside, some contain a grid (in black or red), and some contain a checkerboard pattern (also in black or red). The grids and checkerboards are of various sizes.](09/day_9_clean_420.png)
+
+## Day 11: No computer
+
+![A series of sketches planning for genuary. Each sketch starts with a small square that contains a pattern (e.g. a semi circle, a quarter circle, or a series of lines, squares, and circles). Beside each pattern is a coloured drawing, where the pattern is repeated over and over (and sometimes flipped horizontally or vertically) to form a larger pattern. The patterns are primarily coloured using various pinks and greens, but some use blue, purple, and yellow. Some of the drawings are annotated in dark blue, showing what one "unit" of the pattern is and how the other parts are made (e.g. by flipping on x, flipping on y, or flipping on both x and y).](11/day_11.png)
