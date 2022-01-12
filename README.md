@@ -41,3 +41,7 @@ Inspired by the cover of ["Making Room: Women and Architecture"](https://metropo
 ## Day 11: No computer
 
 ![A series of sketches planning for genuary. Each sketch starts with a small square that contains a pattern (e.g. a semi circle, a quarter circle, or a series of lines, squares, and circles). Beside each pattern is a coloured drawing, where the pattern is repeated over and over (and sometimes flipped horizontally or vertically) to form a larger pattern. The patterns are primarily coloured using various pinks and greens, but some use blue, purple, and yellow. Some of the drawings are annotated in dark blue, showing what one "unit" of the pattern is and how the other parts are made (e.g. by flipping on x, flipping on y, or flipping on both x and y).](11/day_11.png)
+
+## Day 12: Packing
+
+![Assorted circle-ish blob shapes, varying in size and color (dark blue, orange, purple, baby blue, red, lime green, pink, etc). Some of the blobs are very big and some are very small. They are closely packed together but none are overlapping.](12/day_12_clean.png)
