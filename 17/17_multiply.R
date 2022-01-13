@@ -120,18 +120,6 @@ p_border <- p +
 
 ggsave(here::here("17", "multiply", "border.png"), p_border, width = 7, height = 7, dpi = 500, bg = "transparent")
 
-p_border_halftone <-  p +
-  with_halftone_dither(
-    geom_rect(aes(
-      xmin = x_min + x_max * border_inset, xmax = x_max * (1 - border_inset),
-      ymin = y_min + y_max * border_inset, ymax = y_max * (1 - border_inset)
-    ),
-    fill = lightpink, color = lightpink, size = 0.75
-    )
-  )
-
-ggsave(here::here("17", "multiply", "border_halftone.png"), p_border_halftone, width = 7, height = 7, dpi = 500, bg = "transparent")
-
 # Back stems
 
 p_back_stems <- p +
@@ -170,7 +158,6 @@ ggsave(here::here("17", "multiply", "specks.png"), p_specks, width = 7, height =
 
 # Everything stamped out in white
 
-
 p_stamp <- p +
     geom_polygon(data = stems %>%
       rowwise() %>%
@@ -197,15 +184,22 @@ p_stamp_halftone <- p +
 
 ggsave(here::here("17", "multiply", "stamp_halftone.png"), p_stamp_halftone, width = 7, height = 7, dpi = 500, bg = "transparent")
 
+# Save smaller because the dots are a fixed size no matter how it's saved, and then by resizing to larger, the dots will be resized.... I know okay
+
+ggsave(here::here("17", "multiply", "stamp_halftone_small.png"), p_stamp_halftone, width = 2.5, height = 2.5, dpi = 500, bg = "transparent")
 
 # Read em back in and combine!
 
 walk(
-  c("border", "border_halftone", "back_stems", "first_strawberries", "second_strawberries", "specks", "stamp", "stamp_halftone"),
+  c("border", "back_stems", "first_strawberries", "second_strawberries", "specks", "stamp", "stamp_halftone", "stamp_halftone_small"),
   function(x) {
     assign(x, image_read(here::here("17", "multiply", glue::glue("{x}.png"))), envir = .GlobalEnv)
   }
 )
+
+# Fix size of halftone stamp, makes circles bigger..... I know
+
+stamp_halftone <- image_resize(stamp_halftone_small, "3500x3500")
 
 stamp_halftone_data <- image_data(stamp_halftone, "rgba")
 stamp_halftone_data[4, , ] <- as.raw(round(as.integer(stamp_halftone_data[4, , ]) * 0.3))
