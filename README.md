@@ -45,3 +45,7 @@ Inspired by the cover of ["Making Room: Women and Architecture"](https://metropo
 ## Day 12: Packing
 
 ![Assorted circle-ish blob shapes, varying in size and color (dark blue, orange, purple, baby blue, red, lime green, pink, etc). Some of the blobs are very big and some are very small. They are closely packed together but none are overlapping.](12/day_12_clean.png)
+
+## Day 13: 80x800
+
+![A set of eight squares laid out 4 across and 2 down, packed tightly together. Each square contains 10 strips that all run either horizontally or vertically. Each strip is a gradient from one color to another. Some of the gradients run in the same direction as the strip (e.g. a horizontal strip with a gradient running horizontally) and some are in the opposite direction (e.g. a horizontal strip with a vertical gradient). In the strips where the gradient direction matches the strip direction, it is clearer that there is some flow between the colours - e.g. orange runs from the left into pink on the right, and the next strip down, pink runs from the left into blue on the right, and so on. The colours are saturated and bright, including lime green, pink, a bright dark blue, red, orange, and more.](13/day_13_small.png)
