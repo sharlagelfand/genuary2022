@@ -3,6 +3,7 @@ library(dplyr)
 library(purrr)
 library(magick)
 library(tidyr)
+library(ggfx)
 
 source(here::here("colours.R"))
 source(here::here("perlin_circle.R"))
@@ -119,12 +120,24 @@ p_border <- p +
 
 ggsave(here::here("17", "multiply", "border.png"), p_border, width = 7, height = 7, dpi = 500, bg = "transparent")
 
+p_border_halftone <-  p +
+  with_halftone_dither(
+    geom_rect(aes(
+      xmin = x_min + x_max * border_inset, xmax = x_max * (1 - border_inset),
+      ymin = y_min + y_max * border_inset, ymax = y_max * (1 - border_inset)
+    ),
+    fill = lightpink, color = lightpink, size = 0.75
+    )
+  )
+
+ggsave(here::here("17", "multiply", "border_halftone.png"), p_border_halftone, width = 7, height = 7, dpi = 500, bg = "transparent")
+
 # Back stems
 
 p_back_stems <- p +
   geom_polygon(data = stems %>%
-                 rowwise() %>%
-                 mutate(across(c(x), ~ .x * rnorm(1, 1, 0.0005))), aes(x = x + 0.5, y = y - 0.5, fill = colour, group = id), color = NA, alpha = 0.9)
+    rowwise() %>%
+    mutate(across(c(x), ~ .x * rnorm(1, 1, 0.0005))), aes(x = x + 0.5, y = y - 0.5, fill = colour, group = id), color = NA, alpha = 0.9)
 
 ggsave(here::here("17", "multiply", "back_stems.png"), p_back_stems, width = 7, height = 7, dpi = 500, bg = "transparent")
 
@@ -132,8 +145,8 @@ ggsave(here::here("17", "multiply", "back_stems.png"), p_back_stems, width = 7, 
 
 p_strawberries_1 <- p +
   geom_polygon(data = strawberries %>%
-                 rowwise() %>%
-                 mutate(across(c(x), ~ .x * rnorm(1, 1, 0.0005))), aes(x = x + 1, y = y, fill = colour, group = id), fill = lightpink)
+    rowwise() %>%
+    mutate(across(c(x), ~ .x * rnorm(1, 1, 0.0005))), aes(x = x + 1, y = y, fill = colour, group = id), fill = lightpink)
 
 ggsave(here::here("17", "multiply", "first_strawberries.png"), p_strawberries_1, width = 7, height = 7, dpi = 500, bg = "transparent")
 
@@ -141,8 +154,8 @@ ggsave(here::here("17", "multiply", "first_strawberries.png"), p_strawberries_1,
 
 p_strawberries_2 <- p +
   geom_polygon(data = strawberries %>%
-                 rowwise() %>%
-                 mutate(across(c(x), ~ .x * rnorm(1, 1, 0.0005))), aes(x = x, y = y, group = id), color = NA, alpha = 0.8, fill = lightpink)
+    rowwise() %>%
+    mutate(across(c(x), ~ .x * rnorm(1, 1, 0.0005))), aes(x = x, y = y, group = id), color = NA, alpha = 0.8, fill = lightpink)
 
 ggsave(here::here("17", "multiply", "second_strawberries.png"), p_strawberries_2, width = 7, height = 7, dpi = 500, bg = "transparent")
 
@@ -150,34 +163,58 @@ ggsave(here::here("17", "multiply", "second_strawberries.png"), p_strawberries_2
 
 p_specks <- p +
   geom_polygon(data = data_specks %>%
-                 rowwise() %>%
-                 mutate(across(c(x), ~ .x * rnorm(1, 1, 0.0005))), aes(x = x, y = y, group = id), alpha = 1, fill = lightpink)
+    rowwise() %>%
+    mutate(across(c(x), ~ .x * rnorm(1, 1, 0.0005))), aes(x = x, y = y, group = id), alpha = 1, fill = lightpink)
 
 ggsave(here::here("17", "multiply", "specks.png"), p_specks, width = 7, height = 7, dpi = 500, bg = "transparent")
 
 # Everything stamped out in white
 
+
 p_stamp <- p +
-  geom_polygon(data = stems %>%
-                 rowwise() %>%
-                 mutate(x = x * rnorm(1, 1, 0.0005) - 0.5), aes(x = x, y = y, group = id), color = NA, alpha = 1, fill = "white") +
-  geom_polygon(data = strawberries %>%
-                 rowwise() %>%
-                 mutate(x = x * rnorm(1, 1, 0.0005) - 0.5), aes(x = x - 1, y = y, group = id), color = NA, alpha = 1, fill = "white")
+    geom_polygon(data = stems %>%
+      rowwise() %>%
+      mutate(x = x * rnorm(1, 1, 0.0005) - 0.5), aes(x = x, y = y, group = id), color = NA, alpha = 1, fill = "white") +
+    geom_polygon(data = strawberries %>%
+      rowwise() %>%
+      mutate(x = x * rnorm(1, 1, 0.0005) - 0.5), aes(x = x - 1, y = y, group = id), color = NA, alpha = 1, fill = "white")
 
 ggsave(here::here("17", "multiply", "stamp.png"), p_stamp, width = 7, height = 7, dpi = 500, bg = "transparent")
 
+# Halftone stamp
+
+p_stamp_halftone <- p +
+  with_halftone_dither(
+    geom_polygon(data = stems %>%
+                   rowwise() %>%
+                   mutate(x = x * rnorm(1, 1, 0.0005) - 0.5), aes(x = x, y = y, group = id), color = NA, alpha = 1, fill = lightpink)
+  ) +
+  with_halftone_dither(
+    geom_polygon(data = strawberries %>%
+                   rowwise() %>%
+                   mutate(x = x * rnorm(1, 1, 0.0005) - 0.5), aes(x = x - 1, y = y, group = id), color = NA, alpha = 1, fill = lightpink), size = 16
+  )
+
+ggsave(here::here("17", "multiply", "stamp_halftone.png"), p_stamp_halftone, width = 7, height = 7, dpi = 500, bg = "transparent")
+
+
 # Read em back in and combine!
 
-walk(c("border", "second_border", "back_stems", "first_strawberries", "second_strawberries", "specks", "stamp"),
-     function(x) {
-       assign(x, image_read(here::here("17", "multiply", glue::glue("{x}.png"))), envir = .GlobalEnv)
-     }
+walk(
+  c("border", "border_halftone", "back_stems", "first_strawberries", "second_strawberries", "specks", "stamp", "stamp_halftone"),
+  function(x) {
+    assign(x, image_read(here::here("17", "multiply", glue::glue("{x}.png"))), envir = .GlobalEnv)
+  }
 )
+
+stamp_halftone_data <- image_data(stamp_halftone, "rgba")
+stamp_halftone_data[4, , ] <- as.raw(round(as.integer(stamp_halftone_data[4, , ]) * 0.3))
+stamp_halftone <- image_read(stamp_halftone_data)
 
 image_blank(image_info(border)[["width"]], image_info(border)[["height"]]) %>%
   image_composite(border, operator = "Multiply") %>%
   image_composite(stamp) %>%
+  image_composite(stamp_halftone) %>%
   image_composite(first_strawberries, operator = "Multiply") %>%
   image_composite(second_strawberries, operator = "Multiply") %>%
   image_composite(back_stems, operator = "Multiply") %>%
