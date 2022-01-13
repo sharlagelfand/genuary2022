@@ -1,6 +1,6 @@
-add_partial_noise <- function(clean, noise_percent = 0.5) {
+add_partial_noise <- function(clean, noise_percent = 0.5, noisetype = "gaussian") {
   noise <- clean %>%
-    image_noise()
+    image_noise(noisetype)
 
   # Reduce noise opacity
   noise_data <- image_data(noise, "rgba")
