@@ -6,10 +6,8 @@ library(prismatic)
 library(ggstar)
 library(ggsvg)
 
-set.seed(1234)
-
-width <- 2
-height <- 1
+width <- 16
+height <- 8
 
 n_x <- 5
 n_y <- 9
@@ -107,12 +105,20 @@ p <- ggplot() +
   # Waves outlines
   geom_path(data = waves %>% filter(is.na(section)), aes(x = x, y = y, group = id), size = 0.3, alpha = 0.5, colour = darkblue) +
   # Waves shadows
-  geom_path(data = waves %>% filter(is.na(section)), aes(x = x, y = y + 0.1, group = id), colour = darkblue, size = 2, alpha = 0.1) +
+  geom_path(data = waves %>% filter(is.na(section)), aes(x = x, y = y + 0.1, group = id), colour = darkblue, size = 1, alpha = 0.1) +
+  # Stars
+  # geom_star(data =
+  #   waves %>% filter(stringr::str_ends(id, "_1")) %>%
+  #     distinct(id, .keep_all = TRUE),
+  #   aes(x = (xmin + xmax) / 2, y = (ymin + ymax) / 2),
+  #   fill = lightpink, color = lightpink,
+  #   size = 5
+  # ) +
   # Starfish
   geom_point_svg(
     data =
       waves %>% filter(stringr::str_ends(id, "_1")) %>%
-      distinct(id, .keep_all = TRUE),
+        distinct(id, .keep_all = TRUE),
     aes(x = (xmin + xmax) / 2, y = (ymin + ymax) / 2),
     svg = starfish,
     size = 10
@@ -121,4 +127,6 @@ p <- ggplot() +
   coord_fixed(xlim = c(width, n_x * width + width / 2), ylim = c(height / 2 + height, (n_y - 1) * height + height / 2), expand = FALSE) +
   theme_void()
 
-ggsave(here::here("15", "day_15.png"), p, width = 12, height = 9.3333, dpi = 300)
+p
+
+ggsave(here::here("15", "day_15_original.png"), p, width = 12, height = 9.3333, dpi = 300)
