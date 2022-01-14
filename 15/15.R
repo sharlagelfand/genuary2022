@@ -5,6 +5,7 @@ library(tidyr)
 library(prismatic)
 library(ggstar)
 library(ggsvg)
+library(magick)
 
 set.seed(1234)
 
@@ -122,3 +123,11 @@ p <- ggplot() +
   theme_void()
 
 ggsave(here::here("15", "day_15.png"), p, width = 12, height = 9.3333, dpi = 300)
+
+img <- image_read(here::here("15", "day_15.png"))
+
+source(here::here("noise.R"))
+
+img %>%
+  add_partial_noise(0.75, "Laplacian") %>%
+  image_write(here::here("15", "day_15.png"))
