@@ -4,6 +4,7 @@ library(dplyr)
 library(purrr)
 library(tidyr)
 library(ggplot2)
+library(magick)
 
 source(here::here("colours.R"))
 source(here::here("gradients.R"))
@@ -117,8 +118,26 @@ p <- set_1 %>%
   geom_point(aes(x = x, y = y, colour = color), size = 0.1, shape = 15) +
   scale_colour_identity() +
   coord_polar() +
-  # coord_fixed() +
-  theme_void() +
-  theme(plot.background = element_rect(fill = light, colour = light))
+  theme_void()
 
-ggsave(here::here("16", "day_16.png"), p, height = 8, width = 8, dpi = 300)
+ggsave(here::here("16", "day_16_gradients.png"), p, height = 8, width = 8, dpi = 300, bg = "transparent")
+
+# Create background
+
+background <- generate_points_from_grid(xmin = 0, xmax = 100, ymin = 0, ymax = 100, colour_1 = lightblue, colour_2 = lightgreen, granularity = 20, horizontal = FALSE) %>%
+  ggplot(aes(x = x, y = y, colour = color)) +
+  geom_point(size = 0.1, shape = 15) +
+  scale_colour_identity() +
+  coord_fixed(expand = FALSE) +
+  theme_void()
+
+ggsave(here::here("16", "day_16_background.png"), background, height = 16, width = 16, dpi = 300)
+
+img <- image_read(here::here("16", "day_16_gradients.png"))
+background <- image_read(here::here("16", "day_16_background.png"))
+background <- image_resize(background, "50%")
+background <- image_rotate(background, 180)
+
+background %>%
+  image_composite(img) %>%
+  image_write(here::here("16", "day_16.png"))
