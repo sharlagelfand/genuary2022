@@ -10,14 +10,15 @@ set.seed(12345)
 
 source(here::here("colours.R"))
 
-full_grid <- crossing(x = 1:2, y = 1:2)
+full_grid <- crossing(x = 1:3, y = 1:3)
 
 save_width <- 1.5 * max(full_grid[["x"]])
 save_height <- 1.5 * max(full_grid[["y"]])
-dpi <- 1000
+dpi <- 500
 
 p <- ggplot() +
   theme_void() +
+  # theme_minimal() +
   scale_colour_identity() +
   scale_fill_identity() +
   scale_size_identity() +
@@ -48,17 +49,22 @@ limits <- backgrounds %>%
     ymax = max(ymax)
   )
 
+plot_limits <- list(
+  x = c(
+    limits[["xmin"]] + 6,
+    limits[["xmax"]] * max(full_grid[["x"]]) + 2
+  ),
+  y = c(
+    limits[["ymin"]] + 6,
+    limits[["ymax"]] * max(full_grid[["y"]]) + 2
+  )
+)
+
 p <- p +
   coord_fixed(
-    expand = FALSE,
-    xlim = c(
-      limits[["xmin"]] + 2,
-      limits[["xmax"]] * max(full_grid[["x"]]) * 2 - 2
-    ),
-    ylim = c(
-      limits[["ymin"]] + 2,
-      limits[["ymax"]] * max(full_grid[["y"]]) * 2 - 2
-    )
+    # expand = FALSE,
+    xlim = plot_limits[["x"]],
+    ylim = plot_limits[["y"]]
   )
 
 # Dust setup -----
@@ -103,11 +109,12 @@ add_dust <- function(p, dust = dust_grid, frac = 0.001, alpha_min = 0.1, alpha_m
 # Finish background -----
 
 background_files <- map_chr(
-  1:3,
+  1:4,
+  # 1:1,
   function(id) {
-    granularity <- runif(1, 0.02, 0.06)
-    alpha <- runif(1, 0.3, 0.6)
-    size <- runif(1, 0.5, 1)
+    granularity <- runif(1, 0.01, 0.03)
+    alpha <- runif(1, 0.2, 0.4)
+    size <- runif(1, 0.6, 1.1)
 
     background_points <- map2_dfr(
       full_grid[["x"]], full_grid[["y"]],
@@ -118,8 +125,15 @@ background_files <- map_chr(
             function(backgrounds) {
               crossing(
                 x = seq(backgrounds[["xmin"]], backgrounds[["xmax"]], by = granularity),
-                y = seq(backgrounds[["ymin"]], backgrounds[["ymax"]], by = granularity)
+                y = seq(backgrounds[["ymin"]], backgrounds[["ymax"]], by = granularity),
+                alpha = alpha,
+                size = size,
               ) %>%
+                rowwise() %>%
+                mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.001)),
+                  alpha = alpha * rnorm(1, 1, 0.05)
+                ) %>%
+                ungroup() %>%
                 mutate(
                   x = x + 4 * grid_x,
                   y = y + 4 * grid_y,
@@ -128,20 +142,27 @@ background_files <- map_chr(
             }
           )
       }
-    )
+    ) %>%
+      filter(
+        x >= plot_limits[["x"]][[1]],
+        x <= plot_limits[["x"]][[2]],
+        y >= plot_limits[["y"]][[1]],
+        y <= plot_limits[["y"]][[2]]
+      )
 
     p <- p +
       geom_text(
-        data = background_points,
+        data = background_points %>%
+          sample_frac(0.97),
         aes(
           x = x,
           y = y,
-          color = colour
+          color = colour,
+          alpha = alpha
         ),
         label = ">",
         fontface = "bold",
-        size = size,
-        alpha = alpha
+        size = size
       )
 
     # p <- p %>%
@@ -164,6 +185,9 @@ walk(background_files[-1], function(x) {
     image_composite(img, operator = "Multiply")
 })
 
+background_img <- background_img %>%
+  image_composite(image_read(background_files[[1]]), operator = "Multiply")
+
 # Circles ----
 
 distance <- function(x2, x1, y2, y1) {
@@ -176,10 +200,11 @@ circle <- tribble(
 )
 
 circle_files <- map(
-  1:4,
+  1:5,
+  # 1:1,
   function(id) {
-    granularity <- runif(1, 0.02, 0.06)
-    alpha <- runif(1, 0.3, 0.6)
+    granularity <- runif(1, 0.012, 0.042)
+    alpha <- runif(1, 0.27, 0.57)
     size <- runif(1, 0.5, 1)
 
     circle_points <- map2_dfr(
@@ -196,16 +221,28 @@ circle_files <- map(
             y = y
           )) %>%
           filter(d <= 0.99 * circle[["r"]]) %>%
+          rowwise() %>%
+          mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.001)),
+            alpha = alpha * rnorm(1, 1, 0.05)
+          ) %>%
+          ungroup() %>%
           mutate(
             x = x + 4 * grid_x,
             y = y + 4 * grid_y
           )
       }
-    )
+    )  %>%
+      filter(
+        x >= plot_limits[["x"]][[1]],
+        x <= plot_limits[["x"]][[2]],
+        y >= plot_limits[["y"]][[1]],
+        y <= plot_limits[["y"]][[2]]
+      )
 
     p_circle <- p +
       geom_text(
-        data = circle_points,
+        data = circle_points %>%
+          sample_frac(0.91),
         aes(
           x = x,
           y = y,
@@ -214,12 +251,11 @@ circle_files <- map(
         label = ">",
         fontface = "bold",
         size = size,
-        alpha = alpha,
         color = red
       )
-#
-#     p_circle <- p_circle %>%
-#       add_dust(frac = 0.0001, alpha_min = 0.01, alpha_max = 0.05)
+    #
+    #     p_circle <- p_circle %>%
+    #       add_dust(frac = 0.0001, alpha_min = 0.01, alpha_max = 0.05)
 
     file <- tempfile(fileext = ".png")
 
@@ -239,21 +275,6 @@ circle_files <- map(
         alpha = alpha,
         color = "white"
       )
-
-    #
-    #     p_blank <- p +
-    #       geom_circle(
-    #         data = map2_dfr(full_grid[["x"]], full_grid[["y"]], function(grid_x, grid_y) {
-    #           circle %>%
-    #             mutate(
-    #               x0 = x0 + 4 * grid_x,
-    #               y0 = y0 + 4 * grid_y
-    #             )
-    #         }),
-    #         aes(x0 = x0, y0 = y0, r = r * 0.87),
-    #         colour = "white",
-    #         fill = "white"
-    #       )
 
     blank_file <- tempfile(fileext = ".png")
 
@@ -295,10 +316,11 @@ squares <- tribble(
 
 square_files <- map(
   1:4,
+  # 1:1,
   function(id) {
-    granularity <- runif(1, 0.04, 0.08)
-    alpha <- runif(1, 0.3, 0.6)
-    size <- runif(1, 0.5, 1)
+    granularity <- runif(1, 0.012, 0.042)
+    alpha <- runif(1, 0.27, 0.57)
+    size <- runif(1, 0.6, 1.1)
 
     square_points <- map2_dfr(
       full_grid[["x"]], full_grid[["y"]],
@@ -316,13 +338,16 @@ square_files <- map(
                 x = x,
                 y = y
               ) %>%
+                rowwise() %>%
+                mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.001)),
+                  alpha = alpha * rnorm(1, 1, 0.05)
+                ) %>%
+                ungroup() %>%
                 mutate(
                   x = x + 4 * grid_x,
                   y = y + 4 * grid_y,
                   colour = squares[["color"]]
                 )
-
-              df
 
               # if (grid_x == min(full_grid[["x"]])) {
               #   df <- df %>%
@@ -344,12 +369,19 @@ square_files <- map(
             }
           )
       }
-    )
+    ) %>%
+      filter(
+        x >= plot_limits[["x"]][[1]],
+        x <= plot_limits[["x"]][[2]],
+        y >= plot_limits[["y"]][[1]],
+        y <= plot_limits[["y"]][[2]]
+      )
 
     p_square <- p +
       geom_text(
         data = square_points %>%
-          filter(colour == darkpink),
+          filter(colour == darkpink) %>%
+          sample_frac(0.945),
         aes(
           x = x,
           y = y,
@@ -362,7 +394,8 @@ square_files <- map(
       ) +
       geom_text(
         data = square_points %>%
-          filter(colour == lightpink),
+          filter(colour == lightpink) %>%
+          sample_frac(0.945),
         aes(
           x = x,
           y = y,
@@ -467,11 +500,12 @@ triangles <- triangles %>%
   left_join(triangles_color, by = "group")
 
 triangle_files <- map(
-  1:5,
+  1:6,
+  # 1:1,
   function(id) {
-    granularity <- runif(1, 0.02, 0.07)
-    alpha <- runif(1, 0.2, 0.5)
-    size <- runif(1, 0.5, 0.75)
+    granularity <- runif(1, 0.01, 0.04)
+    alpha <- runif(1, 0.4, 0.6)
+    size <- runif(1, 0.6, 0.8)
 
     triangle_points <- map2_dfr(
       full_grid[["x"]], full_grid[["y"]],
@@ -493,25 +527,37 @@ triangle_files <- map(
                 filter(y <= unique(df[["m"]]) + unique(df[["b"]]) * x)
             }
           }, .id = "group") %>%
+          rowwise() %>%
+          mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.001)),
+            alpha = alpha * rnorm(1, 1, 0.05)
+          ) %>%
+          ungroup() %>%
           mutate(
             x = x + 4 * grid_x,
             y = y + 4 * grid_y
           )
       }
-    )
+    ) %>%
+      filter(
+        x >= plot_limits[["x"]][[1]],
+        x <= plot_limits[["x"]][[2]],
+        y >= plot_limits[["y"]][[1]],
+        y <= plot_limits[["y"]][[2]]
+      )
 
     p_triangle <- p +
       geom_text(
-        data = triangle_points,
+        data = triangle_points %>%
+          sample_frac(0.88),
         aes(
           x = x,
           y = y,
-          color = colour
+          color = colour,
+          alpha = alpha
         ),
         label = ">",
         fontface = "bold",
-        size = runif(1, 0.5, 0.75),
-        alpha = alpha
+        size = runif(1, 0.5, 0.75)
       )
 
     # p_triangle <- p_triangle %>%
@@ -544,11 +590,12 @@ triangle_files <- map(
       add_blank_triangles() %>%
       add_blank_triangles() %>%
       add_blank_triangles() %>%
+      add_blank_triangles() %>%
       add_blank_triangles()
 
     blank_file <- tempfile(fileext = ".png")
 
-      ggsave(blank_file, p_blank, width = save_width, height = save_height, dpi = dpi, bg = "transparent")
+    ggsave(blank_file, p_blank, width = save_width, height = save_height, dpi = dpi, bg = "transparent")
 
     list(
       file = file,
