@@ -15,14 +15,14 @@ generate_sidewalks <- function(blocks) {
   # Just keep the "roof" section, use as points
 
   sidewalks <- blocks %>%
-    filter(
-      stringr::str_ends(id, "roof"),
-      point == "bottom"
-    ) %>%
-    mutate(y = y + sidewalk_size * 1.25) %>%
-    # Why 1.25? idk but looks okay
-    split(.$id) %>%
     map(function(block) {
+      block <- block %>%
+        filter(
+          stringr::str_ends(id, "roof"),
+          point == "bottom"
+        ) %>%
+        mutate(y = y + sidewalk_size * 1.25)
+
       sidewalk <- generate_building(block[["x"]], block[["y"]], size_right, size_left, 0) %>%
         filter(section == "roof")
 
@@ -99,8 +99,10 @@ generate_sidewalks <- function(blocks) {
               tibble(xend = intersection_x, yend = intersection_y)
             })
 
-          sidewalk_lines %>%
+          df <- sidewalk_lines %>%
             bind_cols(sidewalk_line_ends)
+
+          df
         })
 
       return(

@@ -61,7 +61,7 @@ generate_blocks <- function() {
 
   front_block <- generate_building(front_block_x, front_block_y, size_right, size_left, block_height, colour = lightpink)
 
-  blocks <- bind_rows(
+  blocks <- list(
     starting_block,
     right_block,
     left_block,
