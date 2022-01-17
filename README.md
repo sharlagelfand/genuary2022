@@ -49,3 +49,15 @@ Inspired by the cover of ["Making Room: Women and Architecture"](https://metropo
 ## Day 13: 80x800
 
 ![A set of eight squares laid out 4 across and 2 down, packed tightly together. Each square contains 10 strips that all run either horizontally or vertically. Each strip is a gradient from one color to another. Some of the gradients run in the same direction as the strip (e.g. a horizontal strip with a gradient running horizontally) and some are in the opposite direction (e.g. a horizontal strip with a vertical gradient). In the strips where the gradient direction matches the strip direction, it is clearer that there is some flow between the colours - e.g. orange runs from the left into pink on the right, and the next strip down, pink runs from the left into blue on the right, and so on. The colours are saturated and bright, including lime green, pink, a bright dark blue, red, orange, and more.](13/day_13_small.png)
+
+## Day 15: Sand
+
+![A grainy pastel image with assorted squares coloured in soft purple, blue, pinks, and yellows. On top of the squares is a random and large wavy pattern, overlapping itself in thin purple lines and slightly thicker, more transparent purple lines. The lines of the waves form bands with more pastel colours between them. On an offset grid pattern on top of everything there are slightly transparent squares with angled pink starfish in the middle.](15/day_15_small.png)
+
+## Day 16: Color gradients gone wrong
+
+![A circular image of various gradients, arranged in an outer circle and an inner circle. Both the outer and inner circle are split into 4 equal pieces, and each piece contains strips that look either like slivers of a pie, or rings of a circle, in an alternating pattern. Each of those strips contains a gradient. The gradient colours are bright but soft, including light pink, orange, light blue, and lime green. The background of the image is a gradient from lime green to light blue.](16/day_16_small.png)
+
+## Day 17: 3 colors
+
+![An 8.5x11 image of blobby pink strawberries with green stems, against a rectangular pink background. Some of the strawberries and their stems peek over the perimeter of the pink background. The image has a multiply effect so that the colours look overlay on top of each other - the same pink is used for the strawberries and the background, but two layers of the same pink create a darker pink. Similarly, where the green stems are overlaid on the pink strawberries, a darker shade of murky green is created. Behind each strawberry is a white outline of the strawberry and stem, filled with a light pink dotted halftone pattern. The halftone pattern is also visible through the strawberries due to the multiply effect.](17/day_17_small.png)
