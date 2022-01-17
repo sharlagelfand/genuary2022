@@ -1,4 +1,3 @@
-
 generate_blocks <- function() {
 
   # Generate 5 "blocks" - a main one, one to the left, right, front, and back
@@ -18,8 +17,6 @@ generate_blocks <- function() {
   road_size <- runif(1, 5, 6)
 
   # Bottom center of each block is then road size + corresponding "side" away, from each corner
-  # Just do distance from the "roof", since the height is negligable
-
   starting_block_corner <- starting_block %>%
     filter(section == "roof") %>%
     filter(point == "bottom")
@@ -71,6 +68,11 @@ generate_blocks <- function() {
     back_block,
     front_block
   )
+
+  # Add size_right, size_left, road size as an attribute
+  attr(blocks, "size_right") <- size_right
+  attr(blocks, "size_left") <- size_left
+  attr(blocks, "road_size") <- road_size
 
   blocks
 }

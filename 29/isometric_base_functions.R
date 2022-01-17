@@ -13,19 +13,25 @@ isometric_points_from_bottom <- function(x = 0, y = 0, size_right = 2, size_left
   right_point <- tibble(x = right_x, y = right_y) %>%
     mutate(point = "right")
 
-  right_line_for_intersecting <- tibble(m = slope_left, b = right_point[["y"]] - right_point[["x"]] * slope_left)
+  bottom_right_line <- tibble(m = slope_right, b = bottom_point[["y"]] - bottom_point[["x"]] * slope_right) %>%
+    mutate(line = "bottom_right")
+  top_right_line <- tibble(m = slope_left, b = right_point[["y"]] - right_point[["x"]] * slope_left) %>%
+    mutate(line = "top_right")
 
   left_x <- bottom_point[["x"]] - size_left
   left_y <- slope_left * left_x + (y - slope_left * x) # b
   left_point <- tibble(x = left_x, y = left_y) %>%
     mutate(point = "left")
 
-  left_line_for_intersecting <- tibble(m = slope_right, b = left_point[["y"]] - left_point[["x"]] * slope_right)
+  bottom_left_line <- tibble(m = slope_left, b = bottom_point[["y"]] - bottom_point[["x"]] * slope_left) %>%
+    mutate(line = "bottom_left")
+  top_left_line <- tibble(m = slope_right, b = left_point[["y"]] - left_point[["x"]] * slope_right) %>%
+    mutate(line = "top_left")
 
-  int_a <- right_line_for_intersecting[["m"]]
-  int_b <- left_line_for_intersecting[["m"]]
-  int_c <- right_line_for_intersecting[["b"]]
-  int_d <- left_line_for_intersecting[["b"]]
+  int_a <- top_right_line[["m"]]
+  int_b <- top_left_line[["m"]]
+  int_c <- top_right_line[["b"]]
+  int_d <- top_left_line[["b"]]
 
   top_point_x <- (int_d - int_c) / (int_a - int_b)
   top_point_y <- int_a * (int_d - int_c) / (int_a - int_b) + int_c
@@ -33,12 +39,21 @@ isometric_points_from_bottom <- function(x = 0, y = 0, size_right = 2, size_left
   top_point <- tibble(x = top_point_x, y = top_point_y) %>%
     mutate(point = "top")
 
-  bind_rows(
+  points <- bind_rows(
     bottom_point,
     right_point,
     top_point,
     left_point
   )
+
+  attr(points, "line_formulas") <- bind_rows(
+    bottom_right_line,
+    bottom_left_line,
+    top_left_line,
+    top_right_line
+  )
+
+  points
 }
 
 generate_building <- function(bottom_center_x, bottom_center_y, size_right, size_left, height, colour = NULL) {
@@ -115,9 +130,15 @@ generate_building <- function(bottom_center_x, bottom_center_y, size_right, size
       colour = right_colour
     )
 
-  bind_rows(
+  building <- bind_rows(
     roof,
     left_side,
     right_side
   )
+
+  attr(building, "roof_line_formulas") <- attr(roof, "line_formulas")
+  attr(building, "building_line_formulas") <- attr(left_side, "line_formulas") %>%
+    filter(line %in% c("bottom_right", "bottom_left"))
+
+  building
 }
