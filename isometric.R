@@ -2,8 +2,12 @@ library(ggplot2)
 library(dplyr)
 library(stringr)
 library(prismatic)
+library(purrr)
 
 source(here::here("colours.R"))
+
+slope_right <- 1 / sqrt(3)
+slope_left <- -slope_right
 
 size_right <- 6
 size_left <- 5
@@ -17,18 +21,18 @@ isometric_points_from_bottom <- function(x = 0, y = 0, size_right = 2, size_left
     mutate(point = "bottom")
 
   right_x <- bottom_point[["x"]] + size_right
-  right_y <- slope_right * right_x + bottom_point[["y"]]
+  right_y <- slope_right * right_x + (y - slope_right * x) # b
   right_point <- tibble(x = right_x, y = right_y) %>%
     mutate(point = "right")
 
-  right_line_for_intersecting <- tibble(m = slope_left, b = right_y * 2)
+  right_line_for_intersecting <- tibble(m = slope_left, b = right_point[["y"]] - right_point[["x"]] * slope_left)
 
   left_x <- bottom_point[["x"]] - size_left
-  left_y <- slope_left * left_x + bottom_point[["y"]]
+  left_y <- slope_left * left_x + (y - slope_left * x) # b
   left_point <- tibble(x = left_x, y = left_y) %>%
     mutate(point = "left")
 
-  left_line_for_intersecting <- tibble(m = slope_right, b = left_y * 2)
+  left_line_for_intersecting <- tibble(m = slope_right, b = left_point[["y"]] - left_point[["x"]] * slope_right)
 
   int_a <- right_line_for_intersecting[["m"]]
   int_b <- left_line_for_intersecting[["m"]]
@@ -50,7 +54,6 @@ isometric_points_from_bottom <- function(x = 0, y = 0, size_right = 2, size_left
 }
 
 generate_building <- function(bottom_center, size_right, size_left, height, colour = NULL) {
-
   building_id <- ids::random_id()
 
   if (is.null(colour)) {
@@ -64,7 +67,7 @@ generate_building <- function(bottom_center, size_right, size_left, height, colo
 
   roof <- isometric_points_from_bottom(
     bottom_center[["x"]],
-    bottom_center[["y"]],
+    bottom_center[["y"]] + height,
     size_right, size_left
   ) %>%
     mutate(
@@ -135,53 +138,57 @@ generate_building <- function(bottom_center, size_right, size_left, height, colo
 
 # Plaza
 
-plaza_1 <- generate_building(tibble(x = 0, y = 0), 15, 15, 0.5, colour = light)
+plaza_height <- 0.15
 
-plaza_2 <- generate_building(tibble(x = 0, y = 0), 15, 15, 0.5, colour = light) %>%
-  mutate(x = x - 19, y = y - 11)
-
-plaza_3 <- generate_building(tibble(x = 0, y = 0), 15, 15, 0.5, colour = light) %>%
-  mutate(x = x + 19, y = y - 11)
-
-plaza_4 <- generate_building(tibble(x = 0, y = 0), 15, 15, 0.5, colour = light) %>%
-  mutate(x = x - 19, y = y + 11)
-
-plaza_5 <- generate_building(tibble(x = 0, y = 0), 15, 15, 0.5, colour = light) %>%
-  mutate(x = x + 19, y = y + 11)
-
-plaza_6 <- generate_building(tibble(x = 0, y = 0), 15, 15, 0.5, colour = light) %>%
-  mutate(y = y + 22)
-
-plazas <- bind_rows(
-  plaza_1,
-  plaza_2,
-  plaza_3,
-  plaza_4,
-  plaza_5,
-  plaza_6
+plazas <- map2_dfr(
+  c(0, -19, -19, 19, 19, 0),
+  c(0, -11, 11, -11, 11, 22),
+  ~ generate_building(tibble(x = .x, y = .y), 15, 15, 0.15, lightpink)
 )
 
 # Buildings
 
-building_1 <- generate_building(tibble(x = 0, y = 0), 2, 2, 6) %>%
-  mutate(x = x - 6, y = y + 6 + 4)
+buildings <- pmap_dfr(
+  list(bottom_center = c
+       size_left,
+       size_right,
+       height =
+       )
+)
 
-building_2 <- generate_building(tibble(x = 0, y = 0), 3.5, 3, 3) %>%
-  mutate(x = x - 2, y = y + 4.75)
-
-building_3 <- generate_building(tibble(x = 0, y = 0), 2, 2, 8) %>%
-  mutate(x = x, y = y + 8 + 13)
+building_1 <- generate_building(tibble(x = -8, y = 6), 2, 2, 6)
+#   mutate(x = x - 6, y = y + 6 + 6 * slope_right)
+#
+# building_2 <- generate_building(tibble(x = 0, y = 0), 3.5, 3, 3) %>%
+#   mutate(x = x - 2, y = y + 3 + 2 * slope_right)
+#
+# building_3 <- generate_building(tibble(x = 0, y = 0), 2, 2, 4) %>%
+#   mutate(x = x - 10, y = y + 4 + 10 * slope_right)
 
 buildings <- bind_rows(
   building_1,
-  building_2,
-  building_3
+  # building_2,
+  # building_3
 )
 
-ggplot() +
-  geom_rect(aes(xmin = -20, xmax = 20, ymin = -5, ymax = 30), colour = dark, fill = dark) +
-  geom_polygon(data = plazas, aes(x = x, y = y, group = id, fill = colour), color = "black") +
-  geom_polygon(data = buildings, aes(x = x, y = y, group = id, fill = colour), color = "black") +
-  coord_fixed(xlim = c(-15, 15), ylim = c(-3, 25)) +
-  scale_fill_identity()
 
+
+ggplot() +
+  geom_rect(aes(xmin = -20, xmax = 20, ymin = -5, ymax = 30), colour = red, fill = red) +
+  geom_polygon(data = plazas, aes(x = x, y = y, group = id, fill = colour), color = "black", size = 0.1) +
+  geom_polygon(data = buildings, aes(x = x, y = y, group = id, fill = colour), color = "black", size = 0.1) +
+  coord_fixed(xlim = c(-15, 15), ylim = c(0, 25)) +
+  scale_fill_identity() +
+  theme_void()
+
+p <- ggplot() +
+  geom_rect(aes(xmin = -20, xmax = 20, ymin = -5, ymax = 30), colour = red, fill = red) +
+  geom_polygon(data = plazas, aes(x = x, y = y, group = id, fill = colour), color = "black", size = 0.1) +
+  geom_polygon(data = buildings, aes(x = x, y = y, group = id, fill = colour), color = "black", size = 0.1) +
+  # coord_fixed(xlim = c(-15, 15), ylim = c(0, 20)) +
+  scale_fill_identity() +
+  theme_void()
+
+p
+
+ggsave("test.png", width = 6, height = 4, dpi = 300)
