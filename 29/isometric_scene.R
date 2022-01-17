@@ -12,7 +12,9 @@ set.seed(1234)
 blocks <- generate_blocks()
 
 sidewalks <- blocks %>%
-  generate_sidewalks()
+  generate_sidewalks() %>%
+  transpose() %>%
+  map(bind_rows)
 
 # Buildings
 

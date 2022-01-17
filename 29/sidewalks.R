@@ -5,10 +5,10 @@ generate_sidewalks <- function(blocks) {
   # Double sidewalk size so that it can be accounted for at top corners too
 
   sidewalk_size <- runif(1, 2, 3)
-  # sidewalk_size <- 4
 
   size_left <- attr(blocks, "size_left") - sidewalk_size * 2
   size_right <- attr(blocks, "size_right") - sidewalk_size * 2
+  sidewalk_line_granularity <- min(size_left, size_right) * runif(1, 0.1, 0.2)
 
   # Get bottom point of each plaza
   # Start sidewalk at bottom_x, bottom_y + sidewalk_size
@@ -22,25 +22,21 @@ generate_sidewalks <- function(blocks) {
     mutate(y = y + sidewalk_size * 1.25) %>%
     # Why 1.25? idk but looks okay
     split(.$id) %>%
-    map_dfr(~ generate_building(.x[["x"]], .x[["y"]], size_right, size_left, 0)) %>%
-    filter(section == "roof")
+    map(function(block) {
+      sidewalk <- generate_building(block[["x"]], block[["y"]], size_right, size_left, 0) %>%
+        filter(section == "roof")
 
-  sidewalks <- bind_rows(
-    sidewalks %>%
-      mutate(order = 0),
-    sidewalks %>%
-      filter(point == "left") %>%
-      mutate(order = 1)
-  ) %>%
-    arrange(-order)
+      sidewalk <- bind_rows(
+        sidewalk %>%
+          mutate(order = 0),
+        sidewalk %>%
+          filter(point == "left") %>%
+          mutate(order = 1)
+      ) %>%
+        arrange(-order)
 
-  # Generate sidewalk lines
-  sidewalk_line_granularity <- min(size_left, size_right) * runif(1, 0.1, 0.2)
-
-  sidewalk_lines <- sidewalks %>%
-    split(.$id) %>%
-    map_dfr(function(sidewalk) {
-      sidewalk %>%
+      # Sidewalk lines
+      sidewalk_lines <- sidewalk %>%
         summarize(
           id = id,
           x = x,
@@ -106,12 +102,12 @@ generate_sidewalks <- function(blocks) {
           sidewalk_lines %>%
             bind_cols(sidewalk_line_ends)
         })
-    })
 
-  return(
-    list(
-      sidewalk_main = sidewalks,
-      sidewalk_lines = sidewalk_lines
-    )
-  )
+      return(
+        list(
+          sidewalk_main = sidewalk,
+          sidewalk_lines = sidewalk_lines
+        )
+      )
+    })
 }
