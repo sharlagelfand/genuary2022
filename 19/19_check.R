@@ -1,5 +1,4 @@
 library(ggplot2)
-library(geomtextpath)
 library(dplyr)
 library(purrr)
 library(magick)
@@ -30,7 +29,8 @@ grids <- map(
       ungroup() %>%
       mutate(colour = case_when(
         colour == 1 ~ lightblue,
-        colour == 0 ~ lightgreen))
+        colour == 0 ~ lightgreen
+      ))
   }
 )
 
@@ -53,9 +53,7 @@ walk(
         xlim = c(1, 50),
         ylim = c(1, 30)
       ) +
-      # scale_colour_manual(values = c(lightblue, lightgreen)) +
       scale_colour_identity() +
-      # scale_size_identity() +
       scale_alpha_identity() +
       theme_void() +
       theme(legend.position = "none")
@@ -79,4 +77,5 @@ walk(
 
 starter %>%
   image_background("white") %>%
+  image_crop() %>%
   image_write(here::here("19", "day_19.png"))
