@@ -5,6 +5,7 @@ library(purrr)
 library(ggforce)
 library(magick)
 library(purrr)
+library(prismatic)
 
 set.seed(12345)
 
@@ -23,12 +24,6 @@ p <- ggplot() +
   scale_fill_identity() +
   scale_size_identity() +
   scale_alpha_identity()
-
-# Elements:
-# Backgrounds DONE
-# Circles DONE
-# Squares DONE
-# Triangles
 
 # Background and setups ----
 
@@ -67,47 +62,6 @@ p <- p +
     ylim = plot_limits[["y"]]
   )
 
-# Dust setup -----
-
-dust_grid <- crossing(
-  x = seq(
-    limits[["xmin"]] + 2,
-    limits[["xmax"]] * max(full_grid[["x"]]) * 2 - 2, 0.01
-  ),
-  y = seq(
-    limits[["ymin"]] + 2,
-    limits[["ymax"]] * max(full_grid[["y"]]) * 2 - 2, 0.01
-  )
-) %>%
-  sample_frac(0.01)
-
-add_dust <- function(p, dust = dust_grid, frac = 0.001, alpha_min = 0.1, alpha_max = 0.3) {
-  dust_grid <- dust_grid %>%
-    sample_frac(frac) %>%
-    rowwise() %>%
-    mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.1)),
-      alpha = runif(1, alpha_min, alpha_max),
-      size = runif(1, 0.5, 1)
-    ) %>%
-    ungroup()
-
-  p +
-    geom_text(
-      data = dust_grid,
-      aes(
-        x = x,
-        y = y,
-        size = size,
-        alpha = alpha
-      ),
-      label = ">",
-      fontface = "bold",
-      colour = "white"
-    )
-}
-
-# Finish background -----
-
 background_files <- map_chr(
   1:4,
   # 1:1,
@@ -123,21 +77,48 @@ background_files <- map_chr(
           split(.$background_id) %>%
           map_dfr(
             function(backgrounds) {
-              crossing(
+              df <- crossing(
                 x = seq(backgrounds[["xmin"]], backgrounds[["xmax"]], by = granularity),
                 y = seq(backgrounds[["ymin"]], backgrounds[["ymax"]], by = granularity),
                 alpha = alpha,
-                size = size,
+                size = size
+              )
+
+              n <- nrow(df)
+
+              df_options <- tibble(
+                s = sample(c("saturate", "desaturate", "none"), n, replace = TRUE),
+                l = sample(c("lighten", "darken", "none"), n, replace = TRUE),
+                saturate_amount = runif(n, 0, 0.125),
+                brighten_amount = runif(n, 0, 0.125),
+                colour = backgrounds[["color"]],
+                x_shift = rnorm(n, 1, 0.001),
+                y_shift = rnorm(n, 1, 0.001),
+                alpha_shift = rnorm(n, 1, 0.05)
               ) %>%
-                rowwise() %>%
-                mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.001)),
-                  alpha = alpha * rnorm(1, 1, 0.05)
-                ) %>%
-                ungroup() %>%
                 mutate(
+                  colour = case_when(
+                    s == "saturate" ~ clr_saturate(colour, shift = saturate_amount),
+                    s == "desaturate" ~ clr_desaturate(colour, shift = saturate_amount),
+                    TRUE ~ colour
+                  ),
+                  colour = case_when(
+                    l == "lighten" ~ clr_lighten(colour, shift = brighten_amount),
+                    l == "darken" ~ clr_darken(colour, shift = brighten_amount),
+                    TRUE ~ colour
+                  )
+                ) %>%
+                mutate(id = row_number())
+
+              df %>%
+                mutate(id = row_number()) %>%
+                left_join(df_options, by = "id") %>%
+                mutate(
+                  x = x * x_shift,
+                  y = y * y_shift,
+                  alpha = alpha * alpha_shift,
                   x = x + 4 * grid_x,
-                  y = y + 4 * grid_y,
-                  colour = backgrounds[["color"]]
+                  y = y + 4 * grid_y
                 )
             }
           )
@@ -210,7 +191,7 @@ circle_files <- map(
     circle_points <- map2_dfr(
       full_grid[["x"]], full_grid[["y"]],
       function(grid_x, grid_y) {
-        crossing(
+        df <- crossing(
           x = seq(circle[["x0"]] - circle[["r"]], circle[["x0"]] + circle[["r"]], by = granularity),
           y = seq(circle[["y0"]] - circle[["r"]], circle[["y0"]] + circle[["r"]], by = granularity)
         ) %>%
@@ -220,18 +201,46 @@ circle_files <- map(
             y2 = circle[["y0"]],
             y = y
           )) %>%
-          filter(d <= 0.99 * circle[["r"]]) %>%
-          rowwise() %>%
-          mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.001)),
-            alpha = alpha * rnorm(1, 1, 0.05)
-          ) %>%
-          ungroup() %>%
+          filter(d <= 0.99 * circle[["r"]])
+
+        n <- nrow(df)
+
+        df_options <- tibble(
+          s = sample(c("saturate", "desaturate", "none"), n, replace = TRUE),
+          l = sample(c("lighten", "darken", "none"), n, replace = TRUE),
+          saturate_amount = runif(n, 0, 0.125),
+          brighten_amount = runif(n, 0, 0.125),
+          colour = red,
+          x_shift = rnorm(n, 1, 0.001),
+          y_shift = rnorm(n, 1, 0.001),
+          alpha_shift = rnorm(n, 1, 0.05)
+        ) %>%
           mutate(
+            colour = case_when(
+              s == "saturate" ~ clr_saturate(colour, shift = saturate_amount),
+              s == "desaturate" ~ clr_desaturate(colour, shift = saturate_amount),
+              TRUE ~ colour
+            ),
+            colour = case_when(
+              l == "lighten" ~ clr_lighten(colour, shift = brighten_amount),
+              l == "darken" ~ clr_darken(colour, shift = brighten_amount),
+              TRUE ~ colour
+            )
+          ) %>%
+          mutate(id = row_number())
+
+        df %>%
+          mutate(id = row_number()) %>%
+          left_join(df_options, by = "id") %>%
+          mutate(
+            x = x * x_shift,
+            y = y * y_shift,
+            alpha = alpha * alpha_shift,
             x = x + 4 * grid_x,
             y = y + 4 * grid_y
           )
       }
-    )  %>%
+    ) %>%
       filter(
         x >= plot_limits[["x"]][[1]],
         x <= plot_limits[["x"]][[2]],
@@ -246,12 +255,12 @@ circle_files <- map(
         aes(
           x = x,
           y = y,
-          alpha = alpha
+          alpha = alpha,
+          color = colour
         ),
         label = ">",
         fontface = "bold",
-        size = size,
-        color = red
+        size = size
       )
     #
     #     p_circle <- p_circle %>%
@@ -336,36 +345,46 @@ square_files <- map(
 
               df <- crossing(
                 x = x,
-                y = y
+                y = y,
+                original_colour = squares[["color"]]
+              )
+
+              n <- nrow(df)
+
+              df_options <- tibble(
+                s = sample(c("saturate", "desaturate", "none"), n, replace = TRUE),
+                l = sample(c("lighten", "darken", "none"), n, replace = TRUE),
+                saturate_amount = runif(n, 0, 0.125),
+                brighten_amount = runif(n, 0, 0.125),
+                colour = squares[["color"]],
+                x_shift = rnorm(n, 1, 0.001),
+                y_shift = rnorm(n, 1, 0.001),
+                alpha_shift = rnorm(n, 1, 0.05)
               ) %>%
-                rowwise() %>%
-                mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.001)),
-                  alpha = alpha * rnorm(1, 1, 0.05)
-                ) %>%
-                ungroup() %>%
                 mutate(
+                  colour = case_when(
+                    s == "saturate" ~ clr_saturate(colour, shift = saturate_amount),
+                    s == "desaturate" ~ clr_desaturate(colour, shift = saturate_amount),
+                    TRUE ~ colour
+                  ),
+                  colour = case_when(
+                    l == "lighten" ~ clr_lighten(colour, shift = brighten_amount),
+                    l == "darken" ~ clr_darken(colour, shift = brighten_amount),
+                    TRUE ~ colour
+                  )
+                ) %>%
+                mutate(id = row_number())
+
+              df %>%
+                mutate(id = row_number()) %>%
+                left_join(df_options, by = "id") %>%
+                mutate(
+                  x = x * x_shift,
+                  y = y * y_shift,
+                  alpha = alpha * alpha_shift,
                   x = x + 4 * grid_x,
-                  y = y + 4 * grid_y,
-                  colour = squares[["color"]]
+                  y = y + 4 * grid_y
                 )
-
-              # if (grid_x == min(full_grid[["x"]])) {
-              #   df <- df %>%
-              #     filter(x != min(x))
-              # } else if (grid_x == max(full_grid[["x"]])) {
-              #   df <- df %>%
-              #     filter(x != max(x))
-              # }
-
-              # if (grid_y == min(full_grid[["y"]])) {
-              #   df <- df %>%
-              #     filter(y != min(y))
-              # } else if (grid_y == max(full_grid[["y"]])) {
-              #   df <- df %>%
-              #     filter(y != max(y))
-              # }
-
-              df
             }
           )
       }
@@ -380,31 +399,31 @@ square_files <- map(
     p_square <- p +
       geom_text(
         data = square_points %>%
-          filter(colour == darkpink) %>%
+          filter(original_colour == darkpink) %>%
           sample_frac(0.945),
         aes(
           x = x,
           y = y,
-          color = colour
+          color = colour,
+          alpha = alpha
         ),
         label = ">",
         fontface = "bold",
-        size = size,
-        alpha = alpha
+        size = size
       ) +
       geom_text(
         data = square_points %>%
-          filter(colour == lightpink) %>%
+          filter(original_colour == lightpink) %>%
           sample_frac(0.945),
         aes(
           x = x,
           y = y,
-          color = colour
+          color = colour,
+          alpha = alpha
         ),
         label = ">",
         fontface = "bold",
-        size = size,
-        alpha = alpha
+        size = size
       )
 
     # p_square <- p_square %>%
@@ -510,7 +529,7 @@ triangle_files <- map(
     triangle_points <- map2_dfr(
       full_grid[["x"]], full_grid[["y"]],
       function(grid_x, grid_y) {
-        triangles %>%
+        df <- triangles %>%
           split(.$group) %>%
           map_dfr(function(df) {
             grid <- crossing(
@@ -526,13 +545,38 @@ triangle_files <- map(
               grid %>%
                 filter(y <= unique(df[["m"]]) + unique(df[["b"]]) * x)
             }
-          }, .id = "group") %>%
-          rowwise() %>%
-          mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.001)),
-            alpha = alpha * rnorm(1, 1, 0.05)
-          ) %>%
-          ungroup() %>%
+          }, .id = "group")
+
+        n <- nrow(df)
+
+
+        df_options <- tibble(
+          s = sample(c("saturate", "desaturate", "none"), n, replace = TRUE),
+          l = sample(c("lighten", "darken", "none"), n, replace = TRUE),
+          saturate_amount = runif(n, 0, 0.125),
+          brighten_amount = runif(n, 0, 0.125),
+          x_shift = rnorm(n, 1, 0.001),
+          y_shift = rnorm(n, 1, 0.001),
+          alpha_shift = rnorm(n, 1, 0.05)
+        )  %>%
+          mutate(id = row_number())
+        df %>%
+          mutate(id = row_number()) %>%
+          left_join(df_options, by = "id") %>%
           mutate(
+            colour = case_when(
+              s == "saturate" ~ clr_saturate(colour, shift = saturate_amount),
+              s == "desaturate" ~ clr_desaturate(colour, shift = saturate_amount),
+              TRUE ~ colour
+            ),
+            colour = case_when(
+              l == "lighten" ~ clr_lighten(colour, shift = brighten_amount),
+              l == "darken" ~ clr_darken(colour, shift = brighten_amount),
+              TRUE ~ colour
+            ),
+            x = x * x_shift,
+            y = y * y_shift,
+            alpha = alpha * alpha_shift,
             x = x + 4 * grid_x,
             y = y + 4 * grid_y
           )
