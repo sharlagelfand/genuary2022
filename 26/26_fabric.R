@@ -25,7 +25,7 @@ p <- ggplot() +
   scale_size_identity() +
   scale_alpha_identity()
 
-fray_swatch <- function(data) {
+fray_swatch <- function(data, keep = FALSE) {
   x_range <- range(data[["x"]])
   x_fray_amount <- (x_range[[2]] - x_range[[1]]) * 0.03
   x_fray_range <- c(x_range[[1]] + x_fray_amount, x_range[[2]] - x_fray_amount)
@@ -43,9 +43,13 @@ fray_swatch <- function(data) {
   no_fray <- data %>%
     filter(!(fray_x | fray_y))
 
+  if (!keep) {
+    return(no_fray)
+  }
+
   fray_x <- data %>%
-    filter(fray_x
-           & !fray_y) %>%
+    filter(fray_x &
+      !fray_y) %>%
     mutate(y_rounded = round(y, 2))
 
   fray_x_remove_y <- fray_x %>%
@@ -181,7 +185,7 @@ background_files <- map_chr(
 
     # Fray the swatch a bit
     background_points <- background_points %>%
-      fray_swatch()
+      fray_swatch(keep = TRUE)
 
     p <- p +
       geom_text(
@@ -203,7 +207,7 @@ background_files <- map_chr(
 
     file <- tempfile(fileext = ".png")
 
-    ggsave(file, p, width = save_width, height = save_height, dpi = dpi, bg = "white")
+    ggsave(file, p, width = save_width, height = save_height, dpi = dpi, bg = "transparent")
 
     file
   }
@@ -217,9 +221,6 @@ walk(background_files[-1], function(x) {
   background_img <<- background_img %>%
     image_composite(img, operator = "Multiply")
 })
-
-background_img <- background_img %>%
-  image_composite(image_read(background_files[[1]]), operator = "Multiply")
 
 # Circles ----
 
@@ -729,14 +730,58 @@ walk(triangle_files[["blank_file"]][-1], function(x) {
     image_composite(img, "Overlay")
 })
 
+# Tiles ----
+
+tiles_data <- crossing(
+  x = seq(plot_limits$x[[1]] * 0.75, plot_limits$x[[2]] * 1.25, 0.5),
+  y = seq(plot_limits$y[[1]] * 0.75, plot_limits$y[[2]] * 1.25, 0.5)
+)
+
+tiles_data_1 <- tiles_data %>%
+  rowwise() %>%
+  mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.02)))
+
+tiles_data_2 <- tiles_data %>%
+  rowwise() %>%
+  mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.02)))
+
+p_tiles <- p +
+  geom_hex(
+    data = tiles_data_1,
+    aes(x = x, y = y),
+    bins = 50,
+    fill = light
+  ) +
+  geom_hex(
+    data = tiles_data_2,
+    aes(x = x, y = y),
+    bins = 50,
+    fill = NA,
+    color = light
+  )
+
+file <- tempfile(fileext = ".png")
+
+ggsave(file, p_tiles, width = save_width * 1.25, height = save_height * 1.25, dpi = dpi, bg = "white")
+
+tiles_img <- image_read(file)
+
+tiles_img <- tiles_img %>%
+  image_crop(geometry = geometry_area(
+    width = image_info(background_img)[["width"]],
+    height = image_info(background_img)[["height"]],
+    x_off = 100,
+    y_off = 100
+  ))
+
 # Combine -----
 
-background_img %>%
+tiles_img %>%
+  image_composite(background_img) %>%
   image_composite(blank_circle_img) %>%
   image_composite(circle_img) %>%
   image_composite(blank_square_img) %>%
   image_composite(square_img) %>%
   image_composite(blank_triangle_img) %>%
   image_composite(triangle_img) %>%
-  # image_composite(dust_img) %>%
   image_write(here::here("26", "26_fabric.png"))
