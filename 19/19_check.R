@@ -58,7 +58,7 @@ walk(
       theme_void() +
       theme(legend.position = "none")
 
-    ggsave(here::here("19", "temp", glue::glue("{id}.png")), p, width = 10, height = 6, dpi = 300)
+    ggsave(here::here("19", "temp", glue::glue("{id}.png")), p, width = 9.5, height = 6, dpi = 300)
   }
 )
 
@@ -76,6 +76,5 @@ walk(
 )
 
 starter %>%
-  image_background("white") %>%
-  image_crop() %>%
+  image_background(light) %>%
   image_write(here::here("19", "day_19.png"))

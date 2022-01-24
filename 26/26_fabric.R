@@ -733,32 +733,24 @@ walk(triangle_files[["blank_file"]][-1], function(x) {
 # Tiles ----
 
 tiles_data <- crossing(
-  x = seq(plot_limits$x[[1]] * 0.75, plot_limits$x[[2]] * 1.25, 0.5),
-  y = seq(plot_limits$y[[1]] * 0.75, plot_limits$y[[2]] * 1.25, 0.5)
+  x = seq(plot_limits$x[[1]] * 0.75, plot_limits$x[[2]] * 1.25, 0.25),
+  y = seq(plot_limits$y[[1]] * 0.75, plot_limits$y[[2]] * 1.25, 0.25)
 )
 
-tiles_data_1 <- tiles_data %>%
-  rowwise() %>%
-  mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.02)))
-
-tiles_data_2 <- tiles_data %>%
-  rowwise() %>%
-  mutate(across(c(x, y), ~ .x * rnorm(1, 1, 0.02)))
+tiles_data$fill <- gen_checkerboard(tiles_data$x, tiles_data$y, fruquency = 0.5)
+tiles_data <- tiles_data %>%
+  mutate(fill = ifelse(fill == 1, light, "white"),
+         colour = light)
 
 p_tiles <- p +
-  geom_hex(
-    data = tiles_data_1,
-    aes(x = x, y = y),
-    bins = 50,
-    fill = light
-  ) +
-  geom_hex(
-    data = tiles_data_2,
-    aes(x = x, y = y),
-    bins = 50,
-    fill = NA,
-    color = light
+  geom_tile(
+    data = tiles_data, aes(x = x, y = y, fill = fill, colour = colour),
+    size = 0.3,
+    width = 0.5,
+    height = 0.5
   )
+
+p_tiles
 
 file <- tempfile(fileext = ".png")
 
