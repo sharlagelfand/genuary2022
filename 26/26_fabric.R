@@ -25,6 +25,54 @@ p <- ggplot() +
   scale_size_identity() +
   scale_alpha_identity()
 
+fray_swatch <- function(data) {
+  x_range <- range(data[["x"]])
+  x_fray_amount <- (x_range[[2]] - x_range[[1]]) * 0.03
+  x_fray_range <- c(x_range[[1]] + x_fray_amount, x_range[[2]] - x_fray_amount)
+
+  y_range <- range(data[["y"]])
+  y_fray_amount <- (y_range[[2]] - y_range[[1]]) * 0.03
+  y_fray_range <- c(y_range[[1]] + y_fray_amount, y_range[[2]] - y_fray_amount)
+
+  data <- data %>%
+    mutate(
+      fray_x = x < x_fray_range[[1]] | x > x_fray_range[[2]],
+      fray_y = y < y_fray_range[[1]] | y > y_fray_range[[2]]
+    )
+
+  no_fray <- data %>%
+    filter(!(fray_x | fray_y))
+
+  fray_x <- data %>%
+    filter(fray_x
+           & !fray_y) %>%
+    mutate(y_rounded = round(y, 2))
+
+  fray_x_remove_y <- fray_x %>%
+    distinct(y_rounded) %>%
+    sample_frac(0.5)
+
+  fray_x <- fray_x %>%
+    anti_join(fray_x_remove_y, by = "y_rounded")
+
+  fray_y <- data %>%
+    filter(fray_y & !fray_x) %>%
+    mutate(x_rounded = round(x, 2))
+
+  fray_y_remove_x <- fray_y %>%
+    distinct(x_rounded) %>%
+    sample_frac(0.5)
+
+  fray_y <- fray_y %>%
+    anti_join(fray_y_remove_x, by = "x_rounded")
+
+  bind_rows(
+    no_fray,
+    fray_x,
+    fray_y
+  )
+}
+
 # Background and setups ----
 
 backgrounds <- tribble(
@@ -63,7 +111,7 @@ p <- p +
   )
 
 background_files <- map_chr(
-  1:4,
+  1:3,
   # 1:1,
   function(id) {
     granularity <- runif(1, 0.01, 0.03)
@@ -130,6 +178,10 @@ background_files <- map_chr(
         y >= plot_limits[["y"]][[1]],
         y <= plot_limits[["y"]][[2]]
       )
+
+    # Fray the swatch a bit
+    background_points <- background_points %>%
+      fray_swatch()
 
     p <- p +
       geom_text(
@@ -248,6 +300,10 @@ circle_files <- map(
         y <= plot_limits[["y"]][[2]]
       )
 
+    # Fray the swatch a bit
+    circle_points <- circle_points %>%
+      fray_swatch()
+
     p_circle <- p +
       geom_text(
         data = circle_points %>%
@@ -324,7 +380,7 @@ squares <- tribble(
   mutate(square_id = row_number())
 
 square_files <- map(
-  1:4,
+  1:5,
   # 1:1,
   function(id) {
     granularity <- runif(1, 0.012, 0.042)
@@ -558,7 +614,7 @@ triangle_files <- map(
           x_shift = rnorm(n, 1, 0.001),
           y_shift = rnorm(n, 1, 0.001),
           alpha_shift = rnorm(n, 1, 0.05)
-        )  %>%
+        ) %>%
           mutate(id = row_number())
         df %>%
           mutate(id = row_number()) %>%
@@ -588,6 +644,10 @@ triangle_files <- map(
         y >= plot_limits[["y"]][[1]],
         y <= plot_limits[["y"]][[2]]
       )
+
+    # Fray the swatch a bit
+    triangle_points <- triangle_points %>%
+      fray_swatch()
 
     p_triangle <- p +
       geom_text(
