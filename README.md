@@ -61,3 +61,15 @@ Inspired by the cover of ["Making Room: Women and Architecture"](https://metropo
 ## Day 17: 3 colors
 
 ![An 8.5x11 image of blobby pink strawberries with green stems, against a rectangular pink background. Some of the strawberries and their stems peek over the perimeter of the pink background. The image has a multiply effect so that the colours look overlay on top of each other - the same pink is used for the strawberries and the background, but two layers of the same pink create a darker pink. Similarly, where the green stems are overlaid on the pink strawberries, a darker shade of murky green is created. Behind each strawberry is a white outline of the strawberry and stem, filled with a light pink dotted halftone pattern. The halftone pattern is also visible through the strawberries due to the multiply effect.](17/day_17_small.png)
+
+## Day 19: Use text/typography
+
+![A large checkerboard pattern in light blue and lime green. The image is textured and almost looks like a swatch of fabric.]()
+
+## Day 26: Airport carpet
+
+![A pattern formed by various pink, red, yellow, and orange squares, circles, and polygons. The pattern ends up looking like a pink sun or star with a red center. The pattern is textured, like a rug, and the edges are frayed.]()
+
+## Day 29: Isometric perspective
+
+![Various red, pink, orange, and yellow buildings laid out in an isometric grid. The buildings are contained within five "blocks", with a little sidewalk on the perimeter of each. The roads and background of the image are a very light pink.]()

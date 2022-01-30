@@ -1,4 +1,4 @@
-generate_blocks <- function() {
+generate_blocks <- function(colour = light) {
 
   # Generate 5 "blocks" - a main one, one to the left, right, front, and back
   # All the same size for now
@@ -10,7 +10,7 @@ generate_blocks <- function() {
 
   # First block
 
-  starting_block <- generate_building(1, 1, size_right, size_left, block_height, colour = lightpink)
+  starting_block <- generate_building(1, 1, size_right, size_left, block_height, colour = colour)
 
   # Road size
 
@@ -31,7 +31,7 @@ generate_blocks <- function() {
   right_block_x <- starting_block_corner[["x"]] + road_size + size_left
   right_block_y <- slope_left * right_block_x + parallel_block_intercept
 
-  right_block <- generate_building(right_block_x, right_block_y, size_right, size_left, block_height, colour = lightpink)
+  right_block <- generate_building(right_block_x, right_block_y, size_right, size_left, block_height, colour = colour)
 
   # Left block
 
@@ -39,7 +39,7 @@ generate_blocks <- function() {
   left_block_x <- starting_block_corner[["x"]] - road_size - size_left
   left_block_y <- slope_left * left_block_x + parallel_block_intercept
 
-  left_block <- generate_building(left_block_x, left_block_y, size_right, size_left, block_height, colour = lightpink)
+  left_block <- generate_building(left_block_x, left_block_y, size_right, size_left, block_height, colour = colour)
 
   # Perpendicular blocks -----
 
@@ -51,7 +51,7 @@ generate_blocks <- function() {
   back_block_x <- starting_block_corner[["x"]] + road_size + size_right
   back_block_y <- slope_right * back_block_x + perpendicular_block_intercept
 
-  back_block <- generate_building(back_block_x, back_block_y, size_right, size_left, block_height, colour = lightpink)
+  back_block <- generate_building(back_block_x, back_block_y, size_right, size_left, block_height, colour = colour)
 
   # Front block
 
@@ -59,7 +59,7 @@ generate_blocks <- function() {
   front_block_x <- starting_block_corner[["x"]] - road_size - size_right
   front_block_y <- slope_right * front_block_x + perpendicular_block_intercept
 
-  front_block <- generate_building(front_block_x, front_block_y, size_right, size_left, block_height, colour = lightpink)
+  front_block <- generate_building(front_block_x, front_block_y, size_right, size_left, block_height, colour = colour)
 
   blocks <- list(
     starting_block,

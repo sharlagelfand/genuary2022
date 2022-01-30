@@ -1,8 +1,8 @@
-generate_buildings <- function(sidewalks) {
+generate_buildings <- function(sidewalks, palette) {
   map_dfr(
     sidewalks,
     function(sidewalk) {
-      n_buildings <- 5
+      n_buildings <- 30
 
       sidewalk_buildings_sf <- vector("list", length = n_buildings)
 
@@ -12,12 +12,13 @@ generate_buildings <- function(sidewalks) {
         overlaps <- TRUE
         attempts <- 0
 
-        while (overlaps & attempts < 10) {
-          building_size <- sample(c("s", "m", "l"), 1)
+        while (overlaps & attempts < 20) {
+          # while (overlaps) {
+          building_size <- sample(c("s", "m", "l"), 1, prob = c(0.25, 0.5, 0.25))
 
           if (building_size == "s") {
-            size_right <- runif(1, 8, 10)
-            size_left <- runif(1, 8, 10)
+            size_right <- runif(1, 6, 8)
+            size_left <- runif(1, 6, 8)
             height <- runif(1, 3, 4)
           } else if (building_size == "m") {
             size_right <- runif(1, 4, 6)
@@ -61,7 +62,9 @@ generate_buildings <- function(sidewalks) {
 
           building_y <- sidewalk_along_line[["m"]] * building_x + sidewalk_along_line[["b"]]
 
-          building <- generate_building(building_x, building_y, size_right, size_left, height) %>%
+          colour <- sample(palette, 1)
+
+          building <- generate_building(building_x, building_y, size_right, size_left, height, colour = colour) %>%
             mutate(
               sidewalk_id = first(sidewalk[["id"]]),
               building_x = building_x,
@@ -75,29 +78,28 @@ generate_buildings <- function(sidewalks) {
             mutate(y = y - height) %>%
             st_as_sf(coords = c("x", "y")) %>%
             group_by(id) %>%
-            summarise() %>%
+            summarise(geometry = st_combine(geometry)) %>%
             st_cast("POLYGON") %>%
             st_make_valid()
 
           sidewalk_sf <- sidewalk_main %>%
-            slice(1:4) %>%
+            slice(1:5) %>%
             st_as_sf(coords = c("x", "y")) %>%
-            summarise() %>%
+            summarise(geometry = st_combine(geometry)) %>%
             st_cast("POLYGON") %>%
             st_make_valid()
 
-          building_overlaps_sidewalk <- st_intersection(sidewalk_sf, building_sf) %>%
-            nrow() != 0
+          combined <- bind_rows(sidewalk_sf, building_sf)
 
-          if (building_overlaps_sidewalk) {
-            cat("building overlaps sidewalk \n")
+          building_within_sidewalks <- st_contains_properly(sidewalk_sf, building_sf)[[1]] %>% length() != 0
+
+          if (!building_within_sidewalks) {
+            # cat("building overlaps sidewalk \n")
             overlaps <- TRUE
             attempts <- attempts + 1
           }
 
-          if (!building_overlaps_sidewalk) {
-            browser()
-            # Check if it overlaps any of the other buildings
+          if (building_within_sidewalks) {
 
             if (building_num == 1) {
               sidewalk_buildings_sf[[building_num]] <<- building_sf
@@ -116,9 +118,9 @@ generate_buildings <- function(sidewalks) {
 
               if (overlaps) {
                 attempts <- attempts + 1
-                cat("overlaps, on attempt", attempts, "\n")
+                # cat("overlaps, on attempt", attempts, "\n")
               } else {
-                cat("wow, no overlap! \n")
+                # cat("wow, no overlap! \n")
 
                 sidewalk_buildings_sf[[building_num]] <<- building_sf
                 return(building)

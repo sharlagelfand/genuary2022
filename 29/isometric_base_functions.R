@@ -63,8 +63,8 @@ generate_building <- function(bottom_center_x, bottom_center_y, size_right, size
     colour <- sample(genuary_colours(), 1)
   }
 
-  left_colour <- as.character(prismatic::clr_darken(colour, 0.15))
-  right_colour <- as.character(prismatic::clr_darken(colour, 0.2))
+  left_colour <- as.character(prismatic::clr_darken(colour, 0.10))
+  right_colour <- as.character(prismatic::clr_darken(colour, 0.15))
 
   # Roof ----
 
